@@ -16,6 +16,7 @@ page '/*.txt', layout: false
 activate :bootstrap_navbar
 
 
+
 # With alternative layout
 # page '/path/to/file.html', layout: 'other_layout'
 
@@ -43,7 +44,24 @@ activate :bootstrap_navbar
 # Build-specific configuration
 # https://middlemanapp.com/advanced/configuration/#environment-specific-settings
 
-# configure :build do
+configure :build do
+  ignore "/vendor/font-awesome/less/*.less"
 #   activate :minify_css
 #   activate :minify_javascript
-# end
+end
+
+after_build do |builder|
+  require 'colorize'
+  require 'fileutils'
+  src_dir = File.join(config[:source], "/vendor/font-awesome/less")
+  dst_dir = File.join(config[:build_dir], "/vendor/font-awesome/less")
+
+  Dir.mkdir(dst_dir) unless File.exists?(dst_dir)
+
+  Dir.glob("#{src_dir}/*.less") do |src|
+    dst = src.gsub(config[:source], config[:build_dir])
+    print '     copying'.green
+    puts "  #{dst}"
+    FileUtils.copy_file(src,dst)
+  end
+end
